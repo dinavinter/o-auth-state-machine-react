@@ -1,9 +1,15 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
+import './gigya/main';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
+// import {initDemoSite} from "./gigya/engine";
 
+// document.addEventListener("DOMContentLoaded", function() {
+//     // Initialize the site (and loads Gigya file)
+//     initDemoSite();
+// });
 ReactDOM.render(
   <React.StrictMode>
     <App />

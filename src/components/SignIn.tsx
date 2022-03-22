@@ -25,7 +25,7 @@ import {
 import gigyaWebSDK from "../gigya/gigyaWebSDK";
 // import {useService} from "@xstate/react";
 // import {socialLogin} from "../gigya/gigyaAuthMachine";
-import {useActor} from "@xstate/react";
+import {asEffect, useActor, useSelector} from "@xstate/react";
 import {Interpreter} from "xstate";
 import {AuthService} from "../machines/authMachine";
 
@@ -52,12 +52,13 @@ const useStyles = makeStyles((theme) => ({
 export interface SignInProps extends RouteComponentProps {
     authService: AuthService;
 }
-
+const loginServiceSelector =(state: any)=>state.context;
 export default function SignIn({authService}: SignInProps) {
     const classes = useStyles();
     const {register, handleSubmit, formState: {errors}} = useForm();
-    
-     const [ state,sendAuth] = useActor(authService);
+    // const {loginService} = useSelector(authService, loginServiceSelector);
+     const loginService = authService;
+     // const [ state,sendAuth] = useActor(authService.state);
     // The normal Gigya account login process makes use of
     // the react-hook-form library
     const handleLogin = async (data: any) => {
@@ -65,32 +66,32 @@ export default function SignIn({authService}: SignInProps) {
             loginID: data.email,
             password: data.password,
         };
-        authService.send({type: "LOGIN", ...params})
+        loginService.send({type: "PASSWORD", ...params})
      
     };
-
+  
     const handleFacebookGigyaLogin = () => {
-        authService.send({type: 'SOCIAL', provider: "facebook"});
+        loginService.send({type: 'SOCIAL', provider: "facebook"});
     };
 
  
 
     const handleLinkedinGigyaLogin = () => {
-        authService.send({type: 'SOCIAL', provider: "linkedin"});
+        loginService.send({type: 'SOCIAL', provider: "linkedin"});
      };
 
  
 
     const handleGoogleLogin = () => {
-        authService.send({type: 'SOCIAL', provider: "google"});
+        loginService.send({type: 'SOCIAL', provider: "google"});
     };
 
     const handleOConnectLogin = async () => {
-       authService.send({type: 'SOCIAL', provider: "oidc-oconnect"});
+        loginService.send({type: 'SOCIAL', provider: "oidc-oconnect"});
     };
 
     const handleOPublicConnectGigyaLogin = () => {
-        authService.send({type: 'SOCIAL', provider: "oidc-coolconnect"});
+        loginService.send({type: 'SOCIAL', provider: "oidc-coolconnect"});
     };
 
     return (

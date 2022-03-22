@@ -46,7 +46,7 @@ const App = () => {
         const subscription = authService.subscribe((state: AnyState) => {
             // simple state logging
             console.log(state);
-            showSnackbar({message: state.value as string, severity: "info"})
+            showSnackbar({message: state.value.toString(), severity: "info"})
 
         });
 
@@ -101,7 +101,7 @@ function PrivateRoute({authService, as: Comp, ...props}: Props) {
     switch (true) {
         case state == undefined:
             return <></>;
-        case state.matches('unauthorized'):
+        case state.matches('login'):
             return  <SignIn authService={authService}/>
         case state.matches(  'reauth' ):
             return <SignIn authService={authService}/>

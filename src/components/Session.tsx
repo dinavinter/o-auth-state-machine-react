@@ -47,16 +47,25 @@ export interface SessionProps {
 const jwtSelector=(state:AnyState)=>state?.context;
 function SessionInfo({authService}: SessionProps) {
   const classes = useStyles();
-  const {idToken} = useSelector(authService, jwtSelector) ||{};
+  const {idToken, mfaToken} = useSelector(authService, jwtSelector) ||{};
   
    
 
   return (
       <Paper className={classes.paper} >
+      <Paper className={classes.paper} >
+        <Typography component="h2" variant="h6" color="primary" gutterBottom>
+          MFA Token
+        </Typography>
+        {mfaToken &&  <JsonView data={mfaToken} />}  
+      </Paper>
+        
+        <Paper className={classes.paper} >
         <Typography component="h2" variant="h6" color="primary" gutterBottom>
           Id Token
         </Typography>
-        {idToken && <JsonView data={decodeJwt(idToken)} />}  
+        {idToken && idToken.details && <JsonView data={idToken.details} />}  
+      </Paper>
       </Paper>
   );
 }

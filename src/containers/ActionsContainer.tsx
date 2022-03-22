@@ -75,7 +75,7 @@ const EventsContainer: React.FC<Props> = ({authService}) => {
                 <ThemeProvider theme={theme}>
 
                     {authService.machine.events
-                        .filter((event) => event && !event.startsWith('xstate.') && !event.endsWith('invocation[0]'))
+                        .filter((event) => event && !event.startsWith('xstate.') && !event.endsWith('invocation[0]') && !event.startsWith('done.')&& !event.startsWith('error.'))
                         .map((event) => {
                             return (
                                 <Event state={authState} send={sendEvent} type={event}/>
@@ -83,8 +83,7 @@ const EventsContainer: React.FC<Props> = ({authService}) => {
                         })}
 
                 </ThemeProvider>
-                {/*</div>*/}
-            </Box>
+             </Box>
         </AppBar>
 
 

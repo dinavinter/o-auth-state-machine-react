@@ -3,14 +3,12 @@ import {
     getJwt,
     logout,
     performSignin,
-    performSignup,
+    performSignup, performSignupWithSS,
     socialLoginAsync,
     SocialLoginParams
 } from "../gigya/gigyaAuthMachine";
 import {omit} from "lodash/fp";
-import {AuthMachine, loginMachine, SocialEvent, SocialPayload} from "./authMachine";
-import {assign, spawn} from "xstate";
-import gigyaWebSDK from "../gigya/gigyaWebSDK";
+import {AuthMachine} from "./authMachine";
 
 function toMfa(tokenDetails: any) {
     const forMfa = tokenDetails.sub_id;

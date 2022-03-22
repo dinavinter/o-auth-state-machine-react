@@ -4,17 +4,64 @@ import {SocialPayload} from "../machines/authMachine";
 
 // @ts-ignore
 
-declare type AnyRequest = {[key: string]:any} | undefined;
+declare type AnyRequest = { [key: string]: any } | undefined;
 
-export async function performSignup(args:any) {
+export async function performSignup(args: any) {
     return new Promise((resolve, reject) => {
-        gigyaWebSDK().accounts.register({
-            email: args.email,
-            password: args.password,
-            finalizeRegistration: true,
+        initRegistration().then(regToken =>
+            gigyaWebSDK().accounts.register({
+                email: args.email,
+                password: args.password,
+                finalizeRegistration: true,
+                regToken: regToken,
+                callback: (response) => {
+                    if (response.errorCode === 0) {
+                        resolve(response);
+
+                    } else {
+                        reject(
+                            `Error during registration: ${response.errorMessage}, ${response.errorDetails}`
+                        );
+                    }
+                },
+            }))
+
+    });
+}
+
+export async function performSignupWithSS(args: any) {
+    return new Promise((resolve, reject) => {
+
+        gigyaWebSDK().accounts.showScreenSet(
+            {
+                ...args,
+                screenSet: "Default-RegistrationLogin",
+                startScreen: 'gigya-register-screen',
+                onLogin: (r) => {
+                    resolve(r)
+                },
+                callback: (response) => {
+                    if (response.errorCode === 0) {
+                        resolve(response);
+
+                    }
+                    if (response.errorCode !== 0) {
+                        reject(
+                            `Error during registration: ${response.errorMessage}, ${response.errorDetails}`
+                        );
+                    }
+                },
+            })
+
+    });
+}
+
+export async function initRegistration(args: any) {
+    return new Promise((resolve, reject) => {
+        gigyaWebSDK().accounts.initRegistration({
             callback: (response) => {
                 if (response.errorCode === 0) {
-                    resolve(response);
+                    resolve(response.regToken);
 
                 } else {
                     reject(
@@ -22,7 +69,9 @@ export async function performSignup(args:any) {
                     );
                 }
             },
-        })
+        });
+
+
     });
 }
 
@@ -85,12 +134,13 @@ export function getAccount(args): Promise<any> {
         })
     });
 }
+
 export type LoginParams = {
-   [key: string]: any
-   loginMode?: string
+    [key: string]: any
+    loginMode?: string
 }
 
-export type SocialLoginParams =SocialPayload & LoginParams
+export type SocialLoginParams = SocialPayload & LoginParams
 
 export const socialLoginAsync = (args: SocialLoginParams) => {
     return new Promise((resolve, reject) => {
@@ -109,15 +159,15 @@ export const socialLoginAsync = (args: SocialLoginParams) => {
         window.gigya.socialize.login({...params, enabledProviders: params.provider});
     });
 }
-export const socialLogin = (args: { provider: string, [key: string]: any }, callback:(res)=>{}) => {
-        const params = {
-            ...args || {},
-            include: "all",
-            callback: callback
-        }
-        gigyaWebSDK().socialize.login({...params, enabledProviders: params.provider});
+export const socialLogin = (args: { provider: string, [key: string]: any }, callback: (res) => {}) => {
+    const params = {
+        ...args || {},
+        include: "all",
+        callback: callback
+    }
+    gigyaWebSDK().socialize.login({...params, enabledProviders: params.provider});
 }
-export const startFlow = (args: { provider: string, [key: string]: any }, callback:(res)=>{}) => {
+export const startFlow = (args: { provider: string, [key: string]: any }, callback: (res) => {}) => {
     const params = {
         ...args || {},
         include: "all",

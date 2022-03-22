@@ -3,6 +3,7 @@ import React, {useEffect} from "react";
 import "./App.css";
 import "./styles/globals.css";
 import SignIn from "./components/SignIn";
+import SignUp from "./components/SignUp";
 import Profile from "./components/Profile";
 // import {useActor} from "@xstate/react";
 import {authMachine, AuthService} from "./machines/authMachine";
@@ -64,20 +65,20 @@ const App = () => {
                     flexWrap: 'none',
                     m: 20,
 
-                    alignItems:"left"
+                    alignItems: "left"
                 }}
             >
-                <Box >
+                <Box>
 
                     <Router>
                         <PrivateRoute default as={ProfileContainer} path={"/"} authService={authService}/>
-                        <SignIn path={"/signin"} authService={authService}/> 
+                        <SignIn path={"/signin"} authService={authService}/>
                         <ProfileContainer path="/profile" authService={authService}/>
-            
+
                     </Router>
                 </Box>
 
-                <Container fixed maxWidth="sm" >
+                <Container fixed maxWidth="sm">
                     <NotificationsContainer authService={authService} notificationsService={notificationService}/>
                 </Container>
             </Box>
@@ -96,25 +97,41 @@ export interface Props extends RouteComponentProps {
 
 }
 
-function PrivateRoute({authService, as: Comp, ...props}: Props) {
+function LoginRoute({authService}: { authService: AuthService }) {
     const [state] = useActor(authService)
     switch (true) {
-        case state == undefined:
-            return <></>;
-        case state.matches('login'):
-            return  <SignIn authService={authService}/>
-        case state.matches(  'reauth' ):
-            return <SignIn authService={authService}/>
+        case state.matches('login.signup'):
+            return <SignUp authService={authService}/>
         default:
-            return  <Comp {...props} authService={authService}/> ;
+            return <SignIn authService={authService}/>
     }
 
- 
+
 }
 
+function PrivateRoute({authService, as: Comp, ...props}: Props) {
+    const [state, send] = useActor(authService);
+    useEffect(() => {
+        if (state.matches('unauthorized')) {
+            send('LOGIN')
+        }
+    }, [state]);
+
+    switch (true) {
+        case state == undefined:
+            return <LoginRoute authService={authService}/>;
+
+        case state.matches('login'):
+            return <LoginRoute authService={authService}/>
+
+        case state.matches('reauth'):
+            return <SignIn authService={authService}/>
+        default:
+            return <Comp {...props} authService={authService}/>;
+    }
 
 
-
+}
 
 
 export default App;

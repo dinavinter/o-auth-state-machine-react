@@ -76,6 +76,7 @@ const EventsContainer: React.FC<Props> = ({authService}) => {
 
                     {authService.machine.events
                         .filter((event) => event && !event.startsWith('xstate.') && !event.endsWith('invocation[0]') && !event.startsWith('done.')&& !event.startsWith('error.'))
+                        .filter((event) => !event.startsWith("SUBMIT")  && !event.startsWith("REGISTER")&& !event.startsWith("PASSWORD")  && !event.startsWith("SOCIAL"))
                         .map((event) => {
                             return (
                                 <Event state={authState} send={sendEvent} type={event}/>

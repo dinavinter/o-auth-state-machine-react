@@ -28,6 +28,7 @@ import gigyaWebSDK from "../gigya/gigyaWebSDK";
 import {asEffect, useActor, useSelector} from "@xstate/react";
 import {Interpreter} from "xstate";
 import {AuthService} from "../machines/authMachine";
+import {ErrorOutlined} from "@material-ui/icons";
 
 const useStyles = makeStyles((theme) => ({
     paper: {
@@ -35,6 +36,14 @@ const useStyles = makeStyles((theme) => ({
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
+        margin: theme.spacing(1)
+    },
+    paperRow: {
+        marginTop: theme.spacing(8),
+        display: "flex",
+        flexDirection: "row",
+        alignItems: "center",
+        margin: theme.spacing(1)
     },
     avatar: {
         margin: theme.spacing(1),
@@ -52,35 +61,42 @@ const useStyles = makeStyles((theme) => ({
 export interface SignInProps extends RouteComponentProps {
     authService: AuthService;
 }
-const loginServiceSelector =(state: any)=>state.context;
+
+const loginServiceSelector = (state: any) => state.context;
 export default function SignIn({authService}: SignInProps) {
     const classes = useStyles();
     const {register, handleSubmit, formState: {errors}} = useForm();
+    const {message} = useSelector(authService, loginServiceSelector);
+
     // const {loginService} = useSelector(authService, loginServiceSelector);
-     const loginService = authService;
-     // const [ state,sendAuth] = useActor(authService.state);
+    const loginService = authService;
+
+    // const [ state,sendAuth] = useActor(authService.state);
     // The normal Gigya account login process makes use of
     // the react-hook-form library
     const handleLogin = async (data: any) => {
         const params = {
-            loginID: data.email,
+            email: data.email,
             password: data.password,
         };
-        loginService.send({type: "PASSWORD", ...params})
-     
+        loginService.send({type: "SUBMIT", ...params})
+
     };
-  
+    const handleRegister = async () => {
+       
+        loginService.send({type: "SIGNUP"})
+
+    };
+
     const handleFacebookGigyaLogin = () => {
         loginService.send({type: 'SOCIAL', provider: "facebook"});
     };
 
- 
 
     const handleLinkedinGigyaLogin = () => {
         loginService.send({type: 'SOCIAL', provider: "linkedin"});
-     };
+    };
 
- 
 
     const handleGoogleLogin = () => {
         loginService.send({type: 'SOCIAL', provider: "google"});
@@ -97,56 +113,60 @@ export default function SignIn({authService}: SignInProps) {
     return (
         <Container component="main" maxWidth="xs">
             <CssBaseline/>
-
-            <div className={classes.paper}>
-                <Avatar className={classes.avatar}>
-                    <LockOutlinedIcon/>
-                </Avatar>
-                <Typography component="h1" variant="h5">
-                    Sign in
-                </Typography>
-                <form
-                    className={classes.form}
-                    noValidate
-                    onSubmit={handleSubmit(handleLogin)}
-                >
-                    <TextField
-                        variant="outlined"
-                        margin="normal"
-                        required
-                        fullWidth
-                        id="email"
-                        label="Email Address"
-                        autoComplete="email"
-                        autoFocus
-                        {...register("email", {required: true})}
-                    />
-                    {errors && errors.email && <span>Please enter an Email address</span>}
-                    <TextField
-                        variant="outlined"
-                        margin="normal"
-                        required
-                        fullWidth
-                        label="Password"
-                        type="password"
-                        id="password"
-                        autoComplete="current-password"
-                        {...register("password", {required: true})}
-                    />
-                    {errors && errors.password && <span>Please enter a password</span>}
-                    <Button
-                        type="submit"
-                        fullWidth
-                        variant="contained"
-                        color="primary"
-                        className={classes.submit}
+                <div className={classes.paper}>
+                    <Avatar className={classes.avatar}>
+                        <LockOutlinedIcon/>
+                    </Avatar>
+                    <Typography component="h1" variant="h5">
+                        Sign in
+                    </Typography>
+                    <form
+                        className={classes.form}
+                        noValidate
+                        onSubmit={handleSubmit(handleLogin)}
                     >
-                        Sign In
-                    </Button>
-                </form>
-            </div>
+                        <TextField
+                            variant="outlined"
+                            margin="normal"
+                            required
+                            fullWidth
+                            id="email"
+                            label="Email Address"
+                            autoComplete="email"
+                            autoFocus
+                            {...register("email", {required: true})}
+                        />
+                        {errors && errors.email && <span>Please enter an Email address</span>}
+                        <TextField
+                            variant="outlined"
+                            margin="normal"
+                            required
+                            fullWidth
+                            label="Password"
+                            type="password"
+                            id="password"
+                            autoComplete="current-password"
+                            {...register("password", {required: true})}
+                        />
+                        {errors && errors.password && <span>Please enter a password</span>}
+                        {message &&  <span><ErrorOutlined /> {message}</span>}
+                        <Button
+                            type="submit"
+                            fullWidth
+                            variant="contained"
+                            color="primary"
+                            className={classes.submit}
+                        >
+                            Sign In
+                        </Button>
 
-          {/*  <Button
+                    
+                    </form>
+
+
+                </div>
+          
+            {/*  <Button
                 startIcon={<FacebookIcon/>}
                 type="submit"
                 fullWidth
@@ -200,14 +220,15 @@ export default function SignIn({authService}: SignInProps) {
             >
                 Sign In With OConnect
             </Button>
-            <Grid container justify="flex-end">
+            <Grid container justify="flex-start">
                 <Grid item>
-                    <Link href="/SignUp" variant="body2">
+                    <Link  onClick={handleRegister} variant="body2">
                         {"Don't have an account? Sign Up"}
                     </Link>
                 </Grid>
             </Grid>
-            <Box mt={8}></Box>
+
+
         </Container>
     );
 }

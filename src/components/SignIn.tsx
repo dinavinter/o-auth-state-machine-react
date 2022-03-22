@@ -146,7 +146,7 @@ export default function SignIn({authService}: SignInProps) {
                 </form>
             </div>
 
-            <Button
+          {/*  <Button
                 startIcon={<FacebookIcon/>}
                 type="submit"
                 fullWidth
@@ -178,7 +178,7 @@ export default function SignIn({authService}: SignInProps) {
                 onClick={handleLinkedinGigyaLogin}
             >
                 Sign In With LinkedIn
-            </Button>
+            </Button>*/}
             <Button
                 type="submit"
                 fullWidth

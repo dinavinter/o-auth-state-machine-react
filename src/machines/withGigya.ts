@@ -10,12 +10,15 @@ import {
 import {omit} from "lodash/fp";
 import {AuthMachine, loginMachine, SocialEvent, SocialPayload} from "./authMachine";
 import {assign, spawn} from "xstate";
+import gigyaWebSDK from "../gigya/gigyaWebSDK";
 
 function toMfa(tokenDetails: any) {
     const forMfa = tokenDetails.sub_id;
     forMfa.authTime = tokenDetails.authTime;
     forMfa.iat = tokenDetails.iat;
     forMfa.exp = tokenDetails.iat;
+    forMfa.amr = tokenDetails.amr;
+    forMfa.email = tokenDetails.email;
     return forMfa;
 }
 
@@ -34,13 +37,15 @@ export const withGigya= (authMachine:AuthMachine)=>authMachine.withConfig({
             const payload = omit("type", event);
             const idToken = await getJwt(payload);
             const tokenDetails= decodeJwt(idToken as string);
-            const forMfa = toMfa(tokenDetails);
 
             const mfaToken = decodeJwt(idToken as string);
-            mfaToken.sub_id= null;
+            const forMfa = toMfa(mfaToken);
+            delete  mfaToken.sub_id;
+            delete  mfaToken.amr;
+            delete  mfaToken.email;
             mfaToken.sub_ids = [forMfa];
             
-            return { idToken: {raw: idToken, details:tokenDetails}, mfaToken};
+            return { idToken: {raw: idToken, details:tokenDetails}, mfaToken, access_token:btoa(JSON.stringify(mfaToken))   };
         },
 
         enrichToken: async (ctx, event) => {
@@ -48,21 +53,16 @@ export const withGigya= (authMachine:AuthMachine)=>authMachine.withConfig({
             const idToken = await getJwt(payload);
             const tokenDetails= decodeJwt(idToken as string); 
             const mfaToken = ctx.mfaToken;
-            const forMfa = toMfa(tokenDetails);
+            const forMfa = toMfa( decodeJwt(idToken as string));
             mfaToken.sub_ids = [...mfaToken.sub_ids, forMfa];
-             return { idToken:  {raw: idToken, details:tokenDetails}, mfaToken};
+             return { idToken:  {raw: idToken, details:tokenDetails}, mfaToken, access_token:btoa(JSON.stringify(mfaToken)) };
 
             function decodeJwt(token?:string) {
 
                 return token && token.split && JSON.parse(atob(token.split('.')[1]));
 
             }  
-            function encodeJwt(token?:object) {
-                const unsignedToken = Buffer.from('').toString('base64') + "." +  Buffer.from(JSON.stringify(token)).toString('base64')
- 
-                return  unsignedToken;
-
-            }
+         
 
             
         },

@@ -506,7 +506,9 @@ export const authMachine = Machine<AuthMachineContext, AuthMachineSchema, AuthMa
            
             resetUser: assign((ctx: any, event: any) => ({
                 user: undefined,
-                idToken: undefined
+                idToken: undefined,
+                token: undefined,
+                mfaToken: undefined
             })),
             setLoginResponse: assign((ctx: any, event: any) => ({
                 user: event.data?.user,

@@ -10,22 +10,63 @@ import {authMachine, AuthService} from "./machines/authMachine";
 import {Redirect, RouteComponentProps, Router, useNavigate} from "@reach/router";
 import {useActor, useInterpret, useMachine, useSelector} from "@xstate/react";
 import {history} from "./utils/historyUtils";
-import {AnyState, State} from "xstate";
-import {Box, Container, Snackbar} from "@material-ui/core";
+import {AnyEventObject, AnyState, State, StateFrom} from "xstate";
+import {AppBar, Box, Container, Snackbar} from "@material-ui/core";
 import {SnackbarContext, snackbarMachine} from "./machines/snackbarMachine";
 import AlertBar from "./components/AlertBar";
 import {withGigya} from "./machines/withGigya";
-import {notificationMachine} from "./machines/notificationsMachine";
+import {notificationMachine, NotificationsEvents} from "./machines/notificationsMachine";
 import NotificationsContainer from "./containers/NotificationsContainer";
 import ProfileContainer from "./containers/ProfileContainer";
 import EventsContainer from "./containers/ActionsContainer";
 import {useInterpretWithLocalStorage} from "./machines/withLocalStorage";
 import {spacing} from "@material-ui/system";
 import SessionInfo from "./components/Session";
+import {machineLoader} from "./machines/dynamicMachine";
+import {profileScreen} from "./machines/screenSetMachine";
+import {AnyMachine} from "./machines/request";
+import {AnyInterpreter} from "xstate/lib/types";
+import {Sender} from "xstate/es";
+import {generateUniqueID} from "web-vitals/dist/modules/lib/generateUniqueID";
 // const authMachineWithGigya= withGigya(authMachine);
 // const state= stateLocalStorage.get();
+
+import {omit} from "lodash/fp";
+
+function dispatcherSelector(state: StateFrom<typeof profileScreen>) {
+    return state.context.dispatcher;
+    
+}
+
+function spyServiceEvents(service: AnyInterpreter, sender: Sender<NotificationsEvents> ){
+    function getPayload(event: AnyEventObject) {
+        return event.data || omit("type", event);
+    }
+
+    service.onEvent(event => {
+            const payload = getPayload(event);
+
+
+            sender({
+                type: "ADD", notification: {
+                    id: generateUniqueID(),
+                    title: event.type,
+                    severity: event.type == "error." ? "error":"info",
+                    payload: payload
+                }
+            })
+        })
+}
+
 const App = () => {
 
+
+    // const [profileState, sendProfile, profileService] = useMachine(()=> machineLoader.withContext({
+    //         machineUrl: './machines/screenSetMachine'
+    //     })
+    // );
+    const [profileState, sendProfile, profileService] = useMachine(() => profileScreen);
+    // const [dispatcherState, sendDispatcher] = useActor( profileState.context?.dispatcher);
 
     const authService = useInterpretWithLocalStorage(() => withGigya(authMachine));
     // const [,sendAuth , authService] = useMachine(()=>withGigya(authMachine));
@@ -42,7 +83,47 @@ const App = () => {
     // authService.subscribe(state => {
     //     showSnackbar({message: state.value as string, severity: "info" })
     // })
+    
+    const dispatcherMachine = useSelector(profileService, dispatcherSelector);
+    const [dispatcherState, sendDispatcher, dispatcherService] = useMachine(()=>dispatcherMachine);
+     
+     useEffect(() => {
+        const subscription = profileService.subscribe((state: AnyState) => {
+            // simple state logging
+            console.log(state);
+            showSnackbar({message: state.value.toString(), severity: "info"})
 
+            
+        });
+
+        return subscription.unsubscribe;
+    }, [profileService]); 
+    
+    useEffect(() => {
+        spyServiceEvents(dispatcherService, sendNotification);
+        console.log(dispatcherMachine?.id);
+        console.log(dispatcherService);
+        if(dispatcherService){
+ 
+            const subscription = dispatcherService.subscribe((state: AnyState) => {
+                // simple state logging
+                console.log(state);
+                showSnackbar({message: state.value.toString(), severity: "info"})
+                sendNotification({type:"ADD" ,notification: {
+                        id: generateUniqueID(),
+                        title: state.value.toString(),
+                        severity: "info",
+                        payload: state.value
+                    }});
+
+
+            });
+
+            return subscription.unsubscribe;
+        }
+       
+    }, [dispatcherService]);
+    
     useEffect(() => {
         const subscription = authService.subscribe((state: AnyState) => {
             // simple state logging
@@ -58,7 +139,12 @@ const App = () => {
     // @ts-ignore
     return (
         <div>
-            <EventsContainer authService={authService}/>
+            <AppBar color="transparent" variant={"outlined"}>
+                <EventsContainer service={authService}/>
+                <EventsContainer service={profileService}/>
+
+            </AppBar>
+            
             <Box
                 sx={{
                     display: 'flex',
@@ -79,7 +165,8 @@ const App = () => {
                 </Box>
 
                 <Container fixed maxWidth="sm">
-                    <NotificationsContainer authService={authService} notificationsService={notificationService}/>
+                    <NotificationsContainer service={authService} notificationsService={notificationService}/>
+                    <NotificationsContainer service={profileService} notificationsService={notificationService}/>
                 </Container>
             </Box>
 

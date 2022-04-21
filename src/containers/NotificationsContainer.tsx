@@ -8,6 +8,8 @@ import {NotificationsService} from "../machines/notificationsMachine";
 import {omit} from "lodash/fp";
 import {useActor} from "@xstate/react";
 import {generateUniqueID} from "web-vitals/dist/modules/lib/generateUniqueID";
+import {AnyService} from "../machines/dynamicMachine";
+import {AnyInterpreter} from "xstate/lib/types";
 
 const useStyles = makeStyles((theme) => ({
     paper: {
@@ -20,11 +22,11 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export interface Props {
-    authService: AuthService;
+    service: AnyInterpreter;
     notificationsService: NotificationsService;
 }
 
-const NotificationsContainer: React.FC<Props> = ({authService, notificationsService}) => {
+const NotificationsContainer: React.FC<Props> = ({service, notificationsService}) => {
     const classes = useStyles();
     // const [authState] = useActor(authService);
     const [notificationsState, sendNotifications] = useActor(notificationsService);
@@ -34,19 +36,20 @@ const NotificationsContainer: React.FC<Props> = ({authService, notificationsServ
     }
 
     useEffect(() => {
-        authService.onEvent(event => {
+        service.onEvent(event => {
             const payload = getPayload(event);
 
+           
             sendNotifications({
                 type: "ADD", notification: {
                     id: generateUniqueID(),
                     title: event.type,
-                    severity: "info",
+                    severity: event.type == "error." ? "error":"info",
                     payload: payload
                 }
             })
         })
-    }, [authService])
+    }, [service])
 
     // useEffect(() => {
     //   sendNotifications({

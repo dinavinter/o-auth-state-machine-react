@@ -10,7 +10,8 @@ export interface NotificationsSchema {
     };
 }
 
-export type NotificationsEvents = { type: "ADD", notification: NotificationResponseItem } | { type: "HIDE" };
+export type NotificationsEvents = NotificationsAddEvent | { type: "HIDE" };
+export type NotificationsAddEvent = { type: "ADD", notification: NotificationResponseItem } 
 
 
 export interface NotificationsContext {
@@ -38,7 +39,7 @@ export const notificationsMachineConfig: MachineConfig<NotificationsContext, Not
 export const notificationMachine= createMachine(notificationsMachineConfig, {
     actions: {
         addNotification:  assign({
-            notifications: (context, event: {type: "ADD", notification: NotificationResponseItem})=> [...context.notifications , event.notification]
+            notifications: (context, event:NotificationsAddEvent, meta)=> [...context.notifications , event.notification]
         })
     }
 })

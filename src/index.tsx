@@ -4,6 +4,7 @@ import './index.css';
 import './gigya/main';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
+import {ErrorBoundary} from "./components/ErrorBoundary";
 // import {initDemoSite} from "./gigya/engine";
 
 // document.addEventListener("DOMContentLoaded", function() {
@@ -11,10 +12,13 @@ import reportWebVitals from './reportWebVitals';
 //     initDemoSite();
 // });
 ReactDOM.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
-  document.getElementById('root')
+    <React.StrictMode>
+        <ErrorBoundary>
+
+            <App/>
+        </ErrorBoundary>
+    </React.StrictMode>,
+    document.getElementById('root')
 );
 
 // If you want to start measuring performance in your app, pass a function

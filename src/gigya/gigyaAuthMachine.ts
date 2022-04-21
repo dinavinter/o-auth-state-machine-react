@@ -1,6 +1,8 @@
 // @ts-nocheck - may need to be at the start of file
 import gigyaWebSDK from "./gigyaWebSDK";
 import {SocialPayload} from "../machines/authMachine";
+import {ScreenRequest} from "./screenSet";
+import {ScreenSetParams} from "./events.interface";
 
 // @ts-ignore
 
@@ -175,6 +177,13 @@ export const startFlow = (args: { provider: string, [key: string]: any }, callba
     }
     gigyaWebSDK().identityFlows.start({...params, enabledProviders: params.provider});
 }
+
+export const showScreenSet = (args: ScreenSetParams) => {
+
+        gigyaWebSDK().accounts.showScreenSet(args)
+   
+}
+
 
 
 export const logout = (args: AnyRequest = {}) => {

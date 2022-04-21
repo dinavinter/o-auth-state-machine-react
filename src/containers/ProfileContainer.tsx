@@ -13,6 +13,7 @@ import {Box, Paper, Typography, Divider} from "@material-ui/core";
 import SessionInfo from "../components/Session";
 import Profile from "../components/Profile";
 import EventsContainer from "./ActionsContainer";
+import {machineLoader} from "../machines/dynamicMachine";
 
 const useStyles = makeStyles((theme) => ({
     box: {
@@ -62,7 +63,6 @@ export interface ProfileProps extends RouteComponentProps {
     authService: AuthService;
 
 }
-
 const profileSelector = (state: AnyState) => state?.context?.user;
 
 function ProfileContainer({authService}: ProfileProps) {
@@ -77,7 +77,8 @@ function ProfileContainer({authService}: ProfileProps) {
             flexDirection:"column"
         }}
     >
-            <div className={classes.stackItem}>
+
+        <div className={classes.stackItem}>
                 <Profile authService={authService}/>
             </div>
             <div  className={classes.stackItem}>

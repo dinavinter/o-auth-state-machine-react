@@ -13,8 +13,9 @@ import {
     responsiveFontSizes, createTheme, ThemeProvider
 } from "@material-ui/core";
 import {AuthService} from "../machines/authMachine";
-import {useActor} from "@xstate/react";
-import {EventObject, Sender} from "xstate/lib/types";
+import {useActor, useMachine} from "@xstate/react";
+import {AnyInterpreter, EventObject, Sender} from "xstate/lib/types";
+import {AnyService, machineLoader} from "../machines/dynamicMachine";
 
 const useStyles = makeStyles((theme) => ({
     paper: {
@@ -35,14 +36,14 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export interface Props {
-    authService: AuthService;
+    service: AnyInterpreter;
 }
 
-const EventsContainer: React.FC<Props> = ({authService}) => {
+const EventsContainer: React.FC<Props> = ({service}) => {
     const classes = useStyles();
-    const [authState] = useActor(authService);
+    const [authState] = useActor(service);
 
-    const sendEvent = authService.send;
+    const sendEvent = service.send;
     let theme = createTheme({
         typography: {
             h5: {
@@ -56,7 +57,6 @@ const EventsContainer: React.FC<Props> = ({authService}) => {
 
     return (
         // <div className="bg-white max-w-7xl mx-auto px-4 sm:px-6">
-        <AppBar color="transparent" variant={"outlined"}>
             <Box sx={{display: 'flex', alignItems: 'center', textAlign: 'center'}}>
                 {/*<div*/}
                 {/*    className="flex justify-between items-center border-b-2 border-gray-100 py-6 md:justify-start md:space-x-10">*/}
@@ -74,7 +74,7 @@ const EventsContainer: React.FC<Props> = ({authService}) => {
                 </div>
                 <ThemeProvider theme={theme}>
 
-                    {authService.machine.events
+                    {service.machine.events
                         .filter((event) => event && !event.startsWith('xstate.') && !event.endsWith('invocation[0]') && !event.startsWith('done.')&& !event.startsWith('error.'))
                         .filter((event) => !event.startsWith("SUBMIT")  && !event.startsWith("REGISTER")&& !event.startsWith("PASSWORD")  && !event.startsWith("SOCIAL"))
                         .map((event) => {
@@ -84,9 +84,25 @@ const EventsContainer: React.FC<Props> = ({authService}) => {
                         })}
 
                 </ThemeProvider>
-             </Box>
-        </AppBar>
 
+                {/*<ThemeProvider theme={theme}>*/}
+                
+                {/*    {profileService.machine.events*/}
+                {/*        .filter((event) => event && !event.startsWith('xstate.') && !event.endsWith('invocation[0]') && !event.startsWith('done.')&& !event.startsWith('error.'))*/}
+                {/*        .filter((event) => !event.startsWith("SUBMIT")  && !event.startsWith("REGISTER")&& !event.startsWith("PASSWORD")  && !event.startsWith("SOCIAL"))*/}
+                {/*        .map((event) => {*/}
+                {/*            return (*/}
+                {/*                <Event state={authState} send={sendProfile} type={event}/>*/}
+                {/*            );*/}
+                {/*        })}*/}
+                
+                {/*</ThemeProvider>*/}
+                
+                {/*<Typography variant={"h5"}  className={`font-mono inline-flex flex-wrap font-bold text-sm`}>*/}
+                {/*    {profileState &&  <span> {profileState.value}</span>}*/}
+                {/*</Typography>*/}
+            </Box>
+ 
 
     );
 };

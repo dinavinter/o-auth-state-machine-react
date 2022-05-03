@@ -3,7 +3,7 @@ import {AnyEventObject, MachineConfig, spawn} from "xstate";
 import {dynamicMachine} from "./dynamicMachine";
 import fp, {omit, pick, keysIn} from "lodash/fp";
 
-import {ScreenEvents, screenMachineMachine} from "./screenSetMachine";
+import {ScreenEvents, screenSetMachine} from "./screenSetMachine";
 import {formMachine, FormStates} from "./formMachine";
 import {EventHandler, ExtractPayloadByType, screenSet} from "./services/screen-service";
 import {ExtractEvent} from "xstate/es";
@@ -71,7 +71,7 @@ function machineService<TContext extends ScreenSetContext = ScreenSetContext, TS
     console.log(context);
     console.log(input);
     console.log(meta);
-    return dynamicMachine.withContext({loader: spawn(() => Promise.resolve(screenMachineMachine(input)))});
+    return dynamicMachine.withContext({loader: spawn(() => Promise.resolve(screenSetMachine(input)))});
 }
 
 

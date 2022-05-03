@@ -4,7 +4,6 @@
   "private": true,
   "homepage": "https://dinavinter.github.io/o-auth-state-machine-react",
   "dependencies": {
-    
     "@material-ui/core": "^4.12.3",
     "@material-ui/icons": "^4.11.2",
     "@material-ui/lab": "^4.0.0-alpha.60",
@@ -19,6 +18,7 @@
     "@xstate/react": "^2.0.1",
     "axios": "^0.26.1",
     "history": "^5.3.0",
+    "msw": "^0.39.2",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "react-hook-form": "^7.27.1",
@@ -35,7 +35,6 @@
     "eject": "react-scripts eject",
     "predeploy": "npm run build -o build",
     "deploy": "gh-pages -d build"
-
   },
   "eslintConfig": {
     "extends": [
@@ -60,9 +59,8 @@
     "@tailwindcss/typography": "latest",
     "@types/reach__router": "^1.3.10",
     "autoprefixer": "^10.4.4",
+    "gh-pages": "^3.2.3",
     "postcss": "^8.4.12",
-    "tailwindcss": "^3.0.23",
-    "gh-pages": "^3.2.3"
-
+    "tailwindcss": "^3.0.23"
   }
 }

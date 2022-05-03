@@ -60,12 +60,12 @@ const activity = (): MachineConfig<ScreenSetContext, any, ScreenEvents> => {
 
             [FormStates.final]: {
                 type: "final",
-                data: { 
+                data: {
                     type: "NEXT",
                     state: 'thank-you' ,
                     screen_set: 'Default-ProfileUpdate',
-                    start_screen: 'gigya-profile-screen',
-                   
+                    start_screen: 'gigya-privacy-screen',
+
                 },
                 onEntry: ["enterFinal", "logEventData"],
                 onExit: "exitFinal",

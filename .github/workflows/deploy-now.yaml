@@ -29,6 +29,21 @@ jobs:
         with:
           secrets: |
 
+      - name: Setup Node
+        if: ${{ steps.project.outputs.deployment-enabled == 'true' }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: v16.x
+
+      - name: Build Node assets
+        env:
+          CI: true
+          SITE_URL: ${{ steps.project.outputs.site-url }}
+        run: |
+          npm install --global yarn
+          yarn install --frozen-lockfile
+          yarn build
+
       - name: Deploy to IONOS
         if: ${{ steps.project.outputs.deployment-enabled == 'true' }}
         uses: ionos-deploy-now/deploy-to-ionos-action@v1
@@ -37,5 +52,5 @@ jobs:
           branch-id: ${{ steps.project.outputs.branch-id }}
           service-host: api-us.ionos.space
           api-key: ${{ secrets.IONOS_API_KEY }}
-          dist-folder: ./
+          dist-folder: public
           runtime-placeholder-files: ${{ steps.template.outputs.runtime-placeholder-files }}

@@ -1,3 +1,5 @@
+/// <reference path="gigya.d.ts"/>
+
 import Profile from "gigya";
 
 export interface IBaseEvent {
